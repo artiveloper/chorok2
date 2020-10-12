@@ -1,0 +1,3 @@
+NotFound:
+  code: "-1"
+  message: "존재하지 않는 사용자입니다."
