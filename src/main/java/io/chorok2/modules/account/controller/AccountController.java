@@ -1,6 +1,8 @@
-package io.chorok2.modules.account;
+package io.chorok2.modules.account.controller;
 
-import io.chorok2.modules.common.service.ResponseService;
+import io.chorok2.modules.account.domain.Account;
+import io.chorok2.modules.account.dto.SignUpRequest;
+import io.chorok2.modules.account.service.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -11,21 +13,11 @@ import java.util.List;
 
 @Api(tags = {"1. Account"})
 @RestController
-@RequiredArgsConstructor
 @RequestMapping(value = "/v1/accounts")
+@RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
-    private final ResponseService responseService;
-
-    @ApiOperation(value = "회원 생성", notes = "회원을 생성한다.")
-    @PostMapping
-    public Account saveAccount(
-            @ApiParam(value = "회원 이메일", required = true) @RequestParam String email,
-            @ApiParam(value = "회원 닉네임", required = true) @RequestParam String nickname) {
-
-        return accountService.createAccount(email, nickname);
-    }
 
     @ApiOperation(value = "회원 목록 조회", notes = "모든 회원을 조회한다.")
     @GetMapping
@@ -36,7 +28,8 @@ public class AccountController {
     @ApiOperation(value = "회원 정보 조회", notes = "특정 회원을 조회한다.")
     @GetMapping("/{id}")
     public Account getAccount(
-            @ApiParam(value = "회원 아이디", required = true) @PathVariable Long id) {
+            @ApiParam(value = "회원 아이디", required = true) @PathVariable Long id,
+            @ApiParam(value = "언어", defaultValue = "ko") @RequestParam(defaultValue = "ko") String lang) {
         return accountService.getAccount(id);
     }
 
@@ -59,3 +52,4 @@ public class AccountController {
     }
 
 }
+

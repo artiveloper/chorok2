@@ -11,7 +11,7 @@ spring:
 spring:
   profiles: local
   datasource:
-    url: jdbc:h2:~/data/jpashop
+    url: jdbc:h2:~/data/chorok2
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -24,3 +24,8 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
+  jwt:
+    secret: abcd!@#$
+  h2:
+    console:
+      enabled: true
