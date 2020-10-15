@@ -1,6 +1,7 @@
 package io.chorok2.infra.config;
 
 import io.chorok2.modules.account.service.AccountService;
+import io.chorok2.modules.security.CustomAuthenticationProvider;
 import io.chorok2.modules.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +29,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private AccountService accountService;
 
-    /*@Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;*/
+    @Autowired
+    private CustomAuthenticationProvider customAuthenticationProvider;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -50,6 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
+                .authenticationProvider(customAuthenticationProvider)
                 .userDetailsService(accountService)
                 .passwordEncoder(passwordEncoder());
     }
@@ -65,11 +67,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/*/auth/signin", "/*/auth/signup", "/h2-console/*").permitAll()
                     .antMatchers(HttpMethod.GET).permitAll()
                 .anyRequest().hasRole("USER");
-
-        /*  에러 핸들링 */
-        /*http.
-                exceptionHandling()
-                .authenticationEntryPoint(unauthorizedHandler);*/
 
         /* H2 콘솔을 위한 설정 */
         http

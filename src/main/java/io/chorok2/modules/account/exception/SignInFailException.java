@@ -1,8 +1,11 @@
 package io.chorok2.modules.account.exception;
 
-public class SignInFailException extends RuntimeException {
+import io.chorok2.modules.error.BusinessException;
+
+public class SignInFailException extends BusinessException {
 
     public SignInFailException() {
         super("signInFail");
     }
+
 }

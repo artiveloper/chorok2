@@ -44,7 +44,8 @@ public class MessageConfiguration implements WebMvcConfigurer {
             @Value("${spring.messages.encoding}") String encoding
     ) {
         YamlMessageSource ms = new YamlMessageSource();
-        ms.setBasename(basename);
+        //ms.setBasename(basename);
+        ms.setBasenames("i18n/exception", "i18n/message");
         ms.setDefaultEncoding(encoding);
         ms.setAlwaysUseMessageFormat(true);
         ms.setUseCodeAsDefaultMessage(true);

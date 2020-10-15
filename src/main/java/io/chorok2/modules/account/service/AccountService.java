@@ -30,7 +30,6 @@ public class AccountService implements UserDetailsService {
 
     @Transactional
     public Account createAccount(SignUpRequest signUpRequest) {
-
         String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
         Account account = Account.builder()

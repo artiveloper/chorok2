@@ -1,5 +1,6 @@
 package io.chorok2.modules.error;
 
+import io.chorok2.infra.yml.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -18,7 +19,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private final MessageSource messageSource;
+    private final MessageSourceUtil messageSourceUtil;
 
     /**
      *  javax.validation.Valid or @Validated 으로 binding error 발생시 발생한다.
@@ -28,8 +29,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
-        ErrorResponse response = ErrorResponse.of(getMessage("notFound.code"), getMessage("notFound.message"), e.getBindingResult());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ErrorResponse response = ErrorResponse.of(messageSourceUtil.getMessage("InvalidInputValue.code"), messageSourceUtil.getMessage("InvalidInputValue.message"), e.getBindingResult());
+        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage("InvalidInputValue.status"))));
     }
 
     /**
@@ -38,8 +39,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException", e);
-        final ErrorResponse response = ErrorResponse.of(getMessage("InvalidInputValue.code"), getMessage("InvalidInputValue.message"));
-        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(getMessage("InvalidInputValue.status"))));
+        final ErrorResponse response = ErrorResponse.of(messageSourceUtil.getMessage("InvalidInputValue.code"), messageSourceUtil.getMessage("InvalidInputValue.message"));
+        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage("InvalidInputValue.status"))));
     }
 
     /**
@@ -70,8 +71,8 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
         log.error("handleEntityNotFoundException", e);
         String errorName = e.getMessage();
-        final ErrorResponse response = ErrorResponse.of((getMessage(errorName + ".code")), getMessage(errorName + ".message"));
-        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(getMessage(errorName + ".status"))));
+        final ErrorResponse response = ErrorResponse.of((messageSourceUtil.getMessage(errorName + ".code")), messageSourceUtil.getMessage(errorName + ".message"));
+        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage(errorName + ".status"))));
     }
 
     /*
@@ -82,14 +83,6 @@ public class GlobalExceptionHandler {
         log.error("handleEntityNotFoundException", e);
         final ErrorResponse response = ErrorResponse.of("-10", "기타에러");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private String getMessage(String code) {
-        return getMessage(code, null);
-    }
-
-    private String getMessage(String code, Object [] args) {
-        return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
 }

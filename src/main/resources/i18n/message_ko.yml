@@ -1,0 +1,5 @@
+# 공통 에러 코드
+ExistsEmail:
+  message: "이미 사용중인 이메일입니다."
+EmailNotBlank:
+  message: "이메일 형식을 다시 확인해주세요."
