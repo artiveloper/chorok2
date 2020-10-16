@@ -3,6 +3,7 @@ package io.chorok2.modules.account.service;
 import io.chorok2.modules.account.domain.Account;
 import io.chorok2.modules.account.domain.Role;
 import io.chorok2.modules.account.domain.RoleName;
+import io.chorok2.modules.account.dto.ProfileResponse;
 import io.chorok2.modules.account.dto.SignInRequest;
 import io.chorok2.modules.account.exception.AccountNotFoundException;
 import io.chorok2.modules.account.dto.SignUpRequest;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -55,9 +57,16 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findAll();
     }
 
-    public Account getAccount(Long id) {
-        return accountRepository.findById(id)
+    public ProfileResponse getProfile(Long id) {
+        Account account = accountRepository.findById(id)
                 .orElseThrow(AccountNotFoundException::new);
+
+        return ProfileResponse
+                .builder()
+                .accountId(account.getId())
+                .email(account.getEmail())
+                .roles(account.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toList()))
+                .build();
     }
 
     @Transactional
@@ -82,14 +91,12 @@ public class AccountService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(AccountNotFoundException::new);
-        System.out.println("::: loadUserByUsername");
         return new AccountDetails(account);
     }
 
     public UserDetails loadUserByUserId(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(AccountNotFoundException::new);
-        System.out.println("::: loadUserByUserId");
         return new AccountDetails(account);
     }
 

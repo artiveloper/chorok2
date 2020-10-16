@@ -28,14 +28,8 @@ public class AccountController {
     @GetMapping("/me")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ProfileResponse> getMyProfile(@CurrentAccount AccountDetails currentAccount) {
-        Account account = accountService.getAccount(currentAccount.getId());
-        ProfileResponse profileResponse = ProfileResponse
-                .builder()
-                .accountId(account.getId())
-                .email(account.getEmail())
-                .roles(account.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toList()))
-                .build();
-        return new ResponseEntity<>(profileResponse, HttpStatus.OK);
+        ProfileResponse response = accountService.getProfile(currentAccount.getId());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(value = "회원 목록 조회", notes = "모든 회원을 조회한다.")
@@ -46,10 +40,11 @@ public class AccountController {
 
     @ApiOperation(value = "회원 정보 조회", notes = "특정 회원을 조회한다.")
     @GetMapping("/{id}")
-    public Account getAccount(
+    public ResponseEntity<ProfileResponse> getAccount(
             @ApiParam(value = "회원 아이디", required = true) @PathVariable Long id,
             @ApiParam(value = "언어", defaultValue = "ko") @RequestParam(defaultValue = "ko") String lang) {
-        return accountService.getAccount(id);
+        ProfileResponse response = accountService.getProfile(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(value = "회원 정보 수정", notes = "특정 회원의 정보를 수정한다.")
