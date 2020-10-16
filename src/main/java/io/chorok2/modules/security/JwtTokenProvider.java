@@ -1,5 +1,6 @@
 package io.chorok2.modules.security;
 
+import com.sun.security.auth.UserPrincipal;
 import io.chorok2.modules.account.domain.Account;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -27,27 +28,17 @@ public class JwtTokenProvider {
 
     // Jwt 토큰 생성
     public String generateToken(Authentication authentication) {
-
-        Account account = (Account) authentication.getPrincipal();
+        AccountDetails accountDetails = (AccountDetails) authentication.getPrincipal();
 
         Date now = new Date();
         // 토큰 유효 시간 : 1시간
-        long tokenValidMilisecond = 1000L * 60 * 60;
+        long tokenValidMillisecond = 1000L * 60 * 60;
         return Jwts.builder()
-                .setSubject(Long.toString(account.getId()))
+                .setSubject(Long.toString(accountDetails.getId()))
                 .setIssuedAt(now) // 토큰 발행일자
-                .setExpiration(new Date(now.getTime() + tokenValidMilisecond)) // set Expire Time
+                .setExpiration(new Date(now.getTime() + tokenValidMillisecond)) // set Expire Time
                 .signWith(SignatureAlgorithm.HS512, secretKey) // 암호화 알고리즘, secret값 세팅
                 .compact();
-    }
-
-    // Jwt 토큰에서 회원 구별 정보 추출
-    public String getUserPk(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
     }
 
     // Jwt 토큰에서 userId를 추출

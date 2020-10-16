@@ -25,12 +25,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         String email = authentication.getName();
         String password = (String) authentication.getCredentials();
-        Account account;
+        AccountDetails accountDetails;
 
         try {
-            account = (Account) accountService.loadUserByUsername(email);
+            accountDetails = (AccountDetails) accountService.loadUserByUsername(email);
 
-            if (!passwordEncoder.matches(password, account.getPassword())) {
+            if (!passwordEncoder.matches(password, accountDetails.getPassword())) {
                 throw new BadCredentialsException("비밀번호를 확인해주세요.");
             }
 
@@ -38,7 +38,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new SignInFailException();
         }
 
-        return new UsernamePasswordAuthenticationToken(email, password, account.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(accountDetails, password, accountDetails.getAuthorities());
     }
 
     @Override

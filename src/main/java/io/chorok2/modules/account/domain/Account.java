@@ -9,22 +9,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Entity
-@Table(name = "account")
+@Table(name = "accounts")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Account implements UserDetails {
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_id")
     private Long id;
 
     private String email;
@@ -35,9 +34,11 @@ public class Account implements UserDetails {
 
     private boolean isDeleted;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    public List<String> roles = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "account_roles",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
@@ -45,41 +46,6 @@ public class Account implements UserDetails {
 
     public void updateDeleteFlag() {
         this.isDeleted = true;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
 }

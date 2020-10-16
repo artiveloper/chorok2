@@ -17,7 +17,6 @@ public class SignUpFormValidation implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        //return SignUpRequest.class.equals(clazz);
         return clazz.isAssignableFrom(SignUpRequest.class);
     }
 
@@ -28,8 +27,8 @@ public class SignUpFormValidation implements Validator {
 
         boolean existsByEmail = accountRepository.existsByEmail(email);
 
-        if (!existsByEmail) {
-            errors.rejectValue("email", "alreadyUsedEmail", messageSourceUtil.getMessage("alreadyUsedEmail.message"));
+        if (existsByEmail) {
+            errors.rejectValue("email", "ExistsEmail", messageSourceUtil.getMessage("ExistsEmail.message"));
         }
     }
 

@@ -1,11 +1,16 @@
 package io.chorok2.modules.account.service;
 
 import io.chorok2.modules.account.domain.Account;
+import io.chorok2.modules.account.domain.Role;
+import io.chorok2.modules.account.domain.RoleName;
 import io.chorok2.modules.account.dto.SignInRequest;
 import io.chorok2.modules.account.exception.AccountNotFoundException;
 import io.chorok2.modules.account.dto.SignUpRequest;
+import io.chorok2.modules.account.exception.RoleNotFoundException;
 import io.chorok2.modules.account.exception.SignInFailException;
 import io.chorok2.modules.account.repository.AccountRepository;
+import io.chorok2.modules.account.repository.RoleRepository;
+import io.chorok2.modules.security.AccountDetails;
 import io.chorok2.modules.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -26,17 +31,21 @@ import java.util.List;
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Account createAccount(SignUpRequest signUpRequest) {
         String encodedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
+        Role role = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(RoleNotFoundException::new);
+
         Account account = Account.builder()
                 .email(signUpRequest.getEmail())
                 .nickname(signUpRequest.getNickname())
                 .password(encodedPassword)
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singleton(role))
                 .build();
 
         return accountRepository.save(account);
@@ -71,13 +80,17 @@ public class AccountService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        return accountRepository.findByEmail(email)
+        Account account = accountRepository.findByEmail(email)
                 .orElseThrow(AccountNotFoundException::new);
+        System.out.println("::: loadUserByUsername");
+        return new AccountDetails(account);
     }
 
     public UserDetails loadUserByUserId(Long id) {
-        return accountRepository.findById(id)
+        Account account = accountRepository.findById(id)
                 .orElseThrow(AccountNotFoundException::new);
+        System.out.println("::: loadUserByUserId");
+        return new AccountDetails(account);
     }
 
 }

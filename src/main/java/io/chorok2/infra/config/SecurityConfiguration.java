@@ -1,7 +1,7 @@
 package io.chorok2.infra.config;
 
-import io.chorok2.modules.account.service.AccountService;
 import io.chorok2.modules.security.CustomAuthenticationProvider;
+import io.chorok2.modules.security.JwtAuthenticationEntryPoint;
 import io.chorok2.modules.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -24,13 +25,14 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private AccountService accountService;
+    private CustomAuthenticationProvider customAuthenticationProvider;
 
     @Autowired
-    private CustomAuthenticationProvider customAuthenticationProvider;
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -51,9 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
-                .authenticationProvider(customAuthenticationProvider)
-                .userDetailsService(accountService)
-                .passwordEncoder(passwordEncoder());
+                .authenticationProvider(customAuthenticationProvider);
     }
 
     @Override
@@ -63,10 +63,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
+                .exceptionHandling()
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/*/auth/signin", "/*/auth/signup", "/h2-console/*").permitAll()
-                    .antMatchers(HttpMethod.GET).permitAll()
-                .anyRequest().hasRole("USER");
+                .anyRequest()
+                    .authenticated();
 
         /* H2 콘솔을 위한 설정 */
         http

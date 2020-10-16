@@ -8,6 +8,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -60,8 +61,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         log.error("handleAccessDeniedException", e);
-        final ErrorResponse response = ErrorResponse.of("-10", "접근 권한이 없습니다.");
-        return new ResponseEntity<>(response, HttpStatus.valueOf(403));
+        final ErrorResponse response = ErrorResponse.of(messageSourceUtil.getMessage("authenticationError.code"), messageSourceUtil.getMessage("authenticationError.message"));
+        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage("authenticationError.status"))));
     }
 
     /*

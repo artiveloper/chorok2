@@ -1,15 +1,21 @@
 package io.chorok2.modules.account.controller;
 
 import io.chorok2.modules.account.domain.Account;
-import io.chorok2.modules.account.dto.SignUpRequest;
+import io.chorok2.modules.account.domain.CurrentAccount;
+import io.chorok2.modules.account.dto.ProfileResponse;
 import io.chorok2.modules.account.service.AccountService;
+import io.chorok2.modules.security.AccountDetails;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = {"1. Account"})
 @RestController
@@ -18,6 +24,19 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ProfileResponse> getMyProfile(@CurrentAccount AccountDetails currentAccount) {
+        Account account = accountService.getAccount(currentAccount.getId());
+        ProfileResponse profileResponse = ProfileResponse
+                .builder()
+                .accountId(account.getId())
+                .email(account.getEmail())
+                .roles(account.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toList()))
+                .build();
+        return new ResponseEntity<>(profileResponse, HttpStatus.OK);
+    }
 
     @ApiOperation(value = "회원 목록 조회", notes = "모든 회원을 조회한다.")
     @GetMapping
