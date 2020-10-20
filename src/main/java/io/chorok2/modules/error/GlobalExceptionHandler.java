@@ -61,8 +61,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         log.error("handleAccessDeniedException", e);
-        final ErrorResponse response = ErrorResponse.of(messageSourceUtil.getMessage("authenticationError.code"), messageSourceUtil.getMessage("authenticationError.message"));
-        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage("authenticationError.status"))));
+        final ErrorResponse response = ErrorResponse.of(messageSourceUtil.getMessage("accessDenied.code"), messageSourceUtil.getMessage("accessDenied.message"));
+        return new ResponseEntity<>(response, HttpStatus.valueOf(Integer.parseInt(messageSourceUtil.getMessage("accessDenied.status"))));
     }
 
     /*

@@ -25,7 +25,11 @@ notFound:
 # 인증 관련 에러코드
 authenticationError:
   code: "SE01"
-  message: "해당 리소스에 접근하기 위한 권한이 없습니다."
+  message: "토큰이 올바르지 않거나 만료시간이 지났습니다."
+  status: "401"
+accessDenied:
+  code: "SE02"
+  message: "보유한 권한으로 접근할 수 없는 리소스입니다."
   status: "403"
 
 # 사용자 관련 에러코드
